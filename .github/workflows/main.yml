@@ -1,0 +1,41 @@
+name: Combine Lists
+
+on:
+  push:
+    paths:
+      - 'aiden.txt'
+      - '1818.txt'
+      - 'juggle.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  combine:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Debug - List all files in repo
+        run: ls -l
+
+      - name: Combine lists and remove duplicates
+        run: |
+          cat aiden.txt 1818.txt juggle.txt | sort | uniq > final_list.txt
+          echo "✅ Combined list:"
+          cat final_list.txt
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add final_list.txt
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update final_list.txt with combined unique entries"
+            git push
+          fi
